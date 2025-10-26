@@ -1,0 +1,83 @@
+services:
+
+  ## Nextcloud
+  ## https://github.com/linuxserver/docker-nextcloud
+  nextcloud:
+    image: lscr.io/linuxserver/nextcloud:latest
+    container_name: nextcloud
+    environment:
+      - PUID=568
+      - PGID=568
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${STORAGE}/configs/nextcloud/config:/config
+      - ${STORAGE}/configs/nextcloud/data:/data
+    ports:
+      - 8887:443
+    restart: unless-stopped
+
+  ## RomM
+  romm:
+    image: rommapp/romm:latest
+    container_name: romm
+    restart: unless-stopped
+    environment:
+      - DB_HOST=romm-db
+      - DB_NAME=romm
+      - DB_USER=romm-user
+      - DB_PASSWD=dbpassword
+      - ROMM_AUTH_SECRET_KEY=03a054b6ca27e0107c5eed552ea66becd9f3a2a8a91e7595cd462a593f9ecd09 # Generate a key with `openssl rand -hex 32`
+      - IGDB_CLIENT_ID= # Generate an ID and SECRET in IGDB
+      - IGDB_CLIENT_SECRET= # https://api-docs.igdb.com/#account-creation
+      - MOBYGAMES_API_KEY= # https://www.mobygames.com/info/api/
+      - STEAMGRIDDB_API_KEY= # https://github.com/rommapp/romm/wiki/Generate-API-Keys#steamgriddb
+    volumes:
+      - ${STORAGE}/configs/romm/resources:/romm/resources
+      - ${STORAGE}/configs/romm/romm_redis_data:/romm/redis-data
+      - ${STORAGE}/configs/romm/assets:/romm/assets
+      - ${STORAGE}/configs/romm/config:/romm/config
+      - ${STORAGE}/roms:/romm/library # replace with your romms library path
+    ports:
+      - 30061:8080
+    depends_on:
+      romm-db:
+        condition: service_healthy
+        restart: true
+  romm-db:
+    image: mariadb:latest
+    container_name: romm-db
+    restart: unless-stopped
+    environment:
+      - MARIADB_ROOT_PASSWORD=supersecret
+      - MARIADB_DATABASE=romm
+      - MARIADB_USER=romm-user
+      - MARIADB_PASSWORD=dbpassword
+    volumes:
+      - ${STORAGE}/configs/romm/mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 30s
+      start_interval: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ## GitLab
+  ## https://docs.gitlab.com/install/docker/installation/
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    restart: always
+    hostname: 'gitlab.example.com'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://gitlab.example.com:8929'
+        gitlab_rails['gitlab_shell_ssh_port'] = 2424
+    ports:
+      - '8929:8929'
+      - '443:443' # gitlab https
+      - '2424:22'
+    volumes:
+      - '$GITLAB_HOME/config:/etc/gitlab'
+      - '$GITLAB_HOME/logs:/var/log/gitlab'
+      - '$GITLAB_HOME/data:/var/opt/gitlab'
+    shm_size: '256m'

@@ -1,0 +1,29 @@
+services:
+
+  ## Jellyfin
+  ## https://wiki.serversatho.me/jellyfin
+  ## https://github.com/linuxserver/docker-jellyfin
+  jellyfin:
+    container_name: jellyfin
+    image: lscr.io/linuxserver/jellyfin:latest
+    environment:
+      - PUID=568
+      - PGID=568
+      - TZ=${TIMEZONE}
+    ports:
+      - 8096:8096 # Jellyfin http
+      - 8920:8920 # Jellyfin https
+    restart: unless-stopped
+    volumes:
+      - ${STORAGE}/configs/jellyfin:/config
+      - ${STORAGE}/media:/media
+  ## Prowlarr
+  ## Radarr
+  ## Sonarr
+  ## Jellyseerr
+  ## recyclarr
+  ## bazarr
+  ## tdarr
+
+  ## qbittorrent
+  ## qui

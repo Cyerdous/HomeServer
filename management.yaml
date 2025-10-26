@@ -1,0 +1,59 @@
+services:
+
+  ## Docker Container Management
+  ## https://wiki.serversatho.me/
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    ports:
+      - 8085:8000 # Portainer http
+      - 44385:9443 # Portainer https
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${STORAGE}/configs/portainer:/data
+
+  ## Docker Log Viewer
+  dozzle:
+    container_name: dozzle
+    image: amir20/dozzle:latest
+    ports:
+      - 8084:8080 # Dozzle
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  ## Hard Drive Health Dashboard
+  scrutiny:
+    container_name: scrutiny
+    restart: unless-stopped
+    image: ghcr.io/analogj/scrutiny:master-omnibus
+    privileged: true
+    cap_add:
+      - SYS_RAWIO
+    ports:
+      - 8083:8080 # Scrutiny webapp
+      - 8086:8086 # Scrutiny influxDB admin
+    volumes:
+      - /run/udev:/run/udev:ro
+      - /dev:/dev:ro
+      - ${STORAGE}/configs/scrutiny:/opt/scrutiny/config
+      - ${STORAGE}/configs/scrutiny/influxdb:/opt/scrutiny/influxdb
+
+  ## Heimdall - Homepage
+  ## https://github.com/linuxserver/docker-heimdall
+  heimdall:
+    image: lscr.io/linuxserver/heimdall:latest
+    container_name: heimdall
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+      - ALLOW_INTERNAL_REQUESTS=true #optional
+    volumes:
+      - ${STORAGE}/configs/heimdall:/config
+    ports:
+      - 80:80 # Heimdall http
+      - 443:443 # Heimdall https
+    restart: unless-stopped
+  

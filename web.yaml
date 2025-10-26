@@ -1,0 +1,20 @@
+services:
+  ## Matrix 
+  ## https://github.com/matrix-construct/tuwunel
+  ## Not Yet, we might be doing our own implementation
+
+  ## Firefox Sync
+
+  ## Bitwarden
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    ports:
+      - 8087:80 # Bitwarden http
+    environment:
+      DOMAIN: "https://vault.cyer.dev"  # Your domain here!
+      # ADMIN_TOKEN: changeme
+    volumes:
+      - ${STORAGE}/configs/vaultwarden:/data
+

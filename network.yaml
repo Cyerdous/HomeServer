@@ -1,0 +1,47 @@
+services:
+
+  ## Pi-hole
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "8082:80/tcp" # Pi-hole http
+      - "44382:443/tcp" # Pi-hole https
+    environment:
+      TZ: '${TIMEZONE}'
+      FTLCONF_webserver_api_password: 'changeme'
+      FTLCONF_dns_listeningMode: 'all'
+    volumes:
+      - '${STORAGE}/configs/pihole:/etc/pihole'
+    restart: unless-stopped
+
+  ## Wireguard
+  ## https://github.com/linuxserver/docker-wireguard?tab=readme-ov-file
+  wireguard:
+    image: lscr.io/linuxserver/wireguard:latest
+    container_name: wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+      - SERVERURL=wireguard.domain.com #optional
+      - SERVERPORT=51820 #optional
+      - PEERS=1 #optional
+      - PEERDNS=auto #optional
+      - INTERNAL_SUBNET=10.13.13.0 #optional
+      - ALLOWEDIPS=0.0.0.0/0 #optional
+      - PERSISTENTKEEPALIVE_PEERS= #optional
+      - LOG_CONFS=true #optional
+    volumes:
+      - /path/to/wireguard/config:/config
+      - /lib/modules:/lib/modules #optional
+    ports:
+      - 51820:51820/udp
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    restart: unless-stopped
