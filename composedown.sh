@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker compose --env-file server.env down -d
+docker compose --env-file server.env down
