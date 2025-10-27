@@ -6,12 +6,12 @@ services:
     image: lscr.io/linuxserver/nextcloud:latest
     container_name: nextcloud
     environment:
-      - PUID=568
-      - PGID=568
+      - PUID=1000
+      - PGID=1000
       - TZ=${TIMEZONE}
     volumes:
-      - ${STORAGE}/configs/nextcloud/config:/config
-      - ${STORAGE}/configs/nextcloud/data:/data
+      - ${STORAGE}/configs/nextcloud:/config
+      - ${STORAGE}/nextcloud:/data
     ports:
       - 8887:443
     restart: unless-stopped
@@ -74,10 +74,10 @@ services:
         gitlab_rails['gitlab_shell_ssh_port'] = 2424
     ports:
       - '8929:8929'
-      - '443:443' # gitlab https
+      - '44370:443' # gitlab https
       - '2424:22'
     volumes:
-      - '$GITLAB_HOME/config:/etc/gitlab'
+      - '${STORAGE}/configs/gitlab:/etc/gitlab'
       - '$GITLAB_HOME/logs:/var/log/gitlab'
       - '$GITLAB_HOME/data:/var/opt/gitlab'
     shm_size: '256m'

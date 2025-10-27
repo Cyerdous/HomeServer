@@ -1,14 +1,14 @@
 services:
 
-  ## Jellyfin
+  ## Jellyfin - Media host
   ## https://wiki.serversatho.me/jellyfin
   ## https://github.com/linuxserver/docker-jellyfin
   jellyfin:
     container_name: jellyfin
     image: lscr.io/linuxserver/jellyfin:latest
     environment:
-      - PUID=568
-      - PGID=568
+      - PUID=1000
+      - PGID=1000
       - TZ=${TIMEZONE}
     ports:
       - 8096:8096 # Jellyfin http
@@ -17,13 +17,151 @@ services:
     volumes:
       - ${STORAGE}/configs/jellyfin:/config
       - ${STORAGE}/media:/media
-  ## Prowlarr
-  ## Radarr
-  ## Sonarr
-  ## Jellyseerr
-  ## recyclarr
-  ## bazarr
-  ## tdarr
+  ## Prowlarr - Media Index Aggregater
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${STORAGE}/configs/prowlarr:/config
+      - ${STORAGE}/media/:/media
+    ports:
+      - 9696:9696
+    restart: unless-stopped
+  ## Sonarr - TV-series Indexer
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${STORAGE}/configs/sonarr:/config
+      - ${STORAGE}/media:/media
+    ports:
+      - 8989:8989
+    restart: unless-stopped
+
+  ## Radarr - Movie Indexer
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${STORAGE}/configs/radarr:/config
+      - ${STORAGE}/media:/media
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+
+  ## Lidarr - Music Indexer
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${STORAGE}/configs/lidarr:/config
+      - ${STORAGE}/media:/media
+    ports:
+      - 8686:8686
+    restart: unless-stopped
+
+  ## Jellyseerr - Media Request Manager
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=${TIMEZONE}
+    ports:
+      - 5055:5055
+    user: "1000:1000"
+    volumes:
+      - ${STORAGE}/configs/jellyseerr:/app/config
+    restart: unless-stopped
+
+  ## Recyclarr
+  # recyclarr:
+  #   image: ghcr.io/recyclarr/recyclarr:latest
+  #   user: 1000:1000
+  #   container_name: recyclarr
+  #   restart: unless-stopped
+  #   build:
+  #     context: .
+  #     args:
+  #       - TARGETARCH=amd64
+  #   volumes:
+  #     - ${STORAGE}/configs/recyclarr:/config
+  #   environment:
+  #     CRON_SCHEDULE: 0 0 * * *
+  #     TZ: ${TIMEZONE}
+
+  ## bazarr - Subtitle Downloader
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${STORAGE}/configs/bazarr:/config
+      - ${STORAGE}/media:/media
+    ports:
+      - 6767:6767
+    restart: unless-stopped
+
+  ## Tdarr
+
+  ## Wizarr - User Invitation System
+  # wizarr:
+  #   container_name: wizarr
+  #   restart: unless-stopped
+  #   image: ghcr.io/wizarrrr/wizarr:latest
+  #   ports:
+  #     - 5690:5690
+  #   environment:
+  #     - APP_URL=https://example.domain.com
+  #     - TZ=${TIMEZONE}
+  #   volumes:
+  #     - ${STORAGE}/configs/wizarr:/data/database
+  #     - ${STORAGE}/configs/wizarr/wizard:/data/wizard_steps
 
   ## qbittorrent
-  ## qui
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE}
+      - WEBUI_PORT=8080
+      - TORRENTING_PORT=6881
+    volumes:
+      - /path/to/qbittorrent/appdata:/config
+      - /path/to/downloads:/downloads #optional
+    ports:
+      - 8080:8080 # qBittorrent
+      - 6881:6881
+      - 6881:6881/udp
+    restart: unless-stopped
+
+## Books, Manga, & Audiobooks
+
+  ## Jellyfin-Bookshelf-Plugin
+  
+  ## Readarr + rreading-glasses
+  ## https://github.com/pennydreadful/bookshelf
+  ## https://github.com/blampe/rreading-glasses
+  ## Calibre
+  ## Kativa

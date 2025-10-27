@@ -4,7 +4,7 @@
 ##   host:container
 ##   http  > '80${port}'
 ##   https > '443${port}'
-##   search regex: (80[0-9]+|443[0-9]+):
+##   search regex: (80[0-9]*|443[0-9]*):
 ##
 ## Reserved Ports
 ##   - 8090 Matrix identity server
@@ -16,5 +16,5 @@ include:
   - management.yaml
 #  - web.yaml
 #  - storage.yaml
-#  - network.yaml
-#  - media.yaml
+  - network.yaml
+  - media.yaml
