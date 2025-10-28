@@ -10,8 +10,12 @@ services:
       - PGID=1000
       - TZ=${TIMEZONE}
     volumes:
-      - ${STORAGE}/configs/nextcloud:/config
-      - ${STORAGE}/nextcloud:/data
+      - type: bind 
+        source: ${STORAGE}/configs/nextcloud
+        target: /config
+      - type: bind 
+        source: ${STORAGE}/nextcloud
+        target: /data
     ports:
       - 8887:443
     restart: unless-stopped
@@ -32,11 +36,21 @@ services:
       - MOBYGAMES_API_KEY= # https://www.mobygames.com/info/api/
       - STEAMGRIDDB_API_KEY= # https://github.com/rommapp/romm/wiki/Generate-API-Keys#steamgriddb
     volumes:
-      - ${STORAGE}/configs/romm/resources:/romm/resources
-      - ${STORAGE}/configs/romm/romm_redis_data:/romm/redis-data
-      - ${STORAGE}/configs/romm/assets:/romm/assets
-      - ${STORAGE}/configs/romm/config:/romm/config
-      - ${STORAGE}/roms:/romm/library # replace with your romms library path
+      - type: bind 
+        source: ${STORAGE}/configs/romm/resources
+        target: /romm/resources
+      - type: bind 
+        source: ${STORAGE}/configs/romm/romm_redis_data
+        target: /romm/redis-data
+      - type: bind 
+        source: ${STORAGE}/configs/romm/assets
+        target: /romm/assets
+      - type: bind 
+        source: ${STORAGE}/configs/romm/config
+        target: /romm/config
+      - type: bind 
+        source: ${STORAGE}/roms
+        target: /romm/library # replace with your romms library path
     ports:
       - 30061:8080
     depends_on:
@@ -53,7 +67,9 @@ services:
       - MARIADB_USER=romm-user
       - MARIADB_PASSWORD=dbpassword
     volumes:
-      - ${STORAGE}/configs/romm/mysql_data:/var/lib/mysql
+      - type: bind 
+        source: ${STORAGE}/configs/romm/mysql_data
+        target: /var/lib/mysql
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       start_period: 30s
@@ -77,7 +93,7 @@ services:
       - '44370:443' # gitlab https
       - '2424:22'
     volumes:
-      - '${STORAGE}/configs/gitlab:/etc/gitlab'
+      - 'type: bind source: ${STORAGE}/configs/gitlab:/etc/gitlab'
       - '$GITLAB_HOME/logs:/var/log/gitlab'
       - '$GITLAB_HOME/data:/var/opt/gitlab'
     shm_size: '256m'

@@ -16,5 +16,7 @@ services:
       DOMAIN: "https://vault.cyer.dev"  # Your domain here!
       # ADMIN_TOKEN: changeme
     volumes:
-      - ${STORAGE}/configs/vaultwarden:/data
+      - type: bind 
+        source: ${STORAGE}/configs/vaultwarden
+        target: /data
 

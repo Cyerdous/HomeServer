@@ -14,7 +14,9 @@ services:
       FTLCONF_webserver_api_password: 'changeme'
       FTLCONF_dns_listeningMode: 'all'
     volumes:
-      - '${STORAGE}/configs/pihole:/etc/pihole'
+      - type: bind 
+        source: ${STORAGE}/configs/pihole
+        target: /etc/pihole
     restart: unless-stopped
 
   ## Wireguard
@@ -38,8 +40,12 @@ services:
       - PERSISTENTKEEPALIVE_PEERS= #optional
       - LOG_CONFS=true #optional
     volumes:
-      - ${STORAGE}/configs/wireguard:/config
-      - /lib/modules:/lib/modules #optional
+      - type: bind 
+        source: ${STORAGE}/configs/wireguard
+        target: /config
+      - type: bind 
+        source: /lib/modules
+        target: /lib/modules
     ports:
       - 51820:51820/udp # Wireguard
     sysctls:

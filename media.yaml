@@ -15,8 +15,12 @@ services:
       - 8920:8920 # Jellyfin https
     restart: unless-stopped
     volumes:
-      - ${STORAGE}/configs/jellyfin:/config
-      - ${STORAGE}/media:/media
+      - type: bind 
+        source: ${STORAGE}/configs/jellyfin
+        target: /config
+      - type: bind 
+        source: ${STORAGE}/media
+        target: /media
   ## Prowlarr - Media Index Aggregater
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
@@ -26,8 +30,12 @@ services:
       - PGID=1000
       - TZ=${TIMEZONE}
     volumes:
-      - ${STORAGE}/configs/prowlarr:/config
-      - ${STORAGE}/media/:/media
+      - type: bind 
+        source: ${STORAGE}/configs/prowlarr
+        target: /config
+      - type: bind 
+        source: ${STORAGE}/media/
+        target: /media
     ports:
       - 9696:9696
     restart: unless-stopped
@@ -40,8 +48,12 @@ services:
       - PGID=1000
       - TZ=${TIMEZONE}
     volumes:
-      - ${STORAGE}/configs/sonarr:/config
-      - ${STORAGE}/media:/media
+      - type: bind 
+        source: ${STORAGE}/configs/sonarr
+        target: /config
+      - type: bind 
+        source: ${STORAGE}/media
+        target: /media
     ports:
       - 8989:8989
     restart: unless-stopped
@@ -55,8 +67,12 @@ services:
       - PGID=1000
       - TZ=${TIMEZONE}
     volumes:
-      - ${STORAGE}/configs/radarr:/config
-      - ${STORAGE}/media:/media
+      - type: bind 
+        source: ${STORAGE}/configs/radarr
+        target: /config
+      - type: bind 
+        source: ${STORAGE}/media
+        target: /media
     ports:
       - 7878:7878
     restart: unless-stopped
@@ -70,8 +86,12 @@ services:
       - PGID=1000
       - TZ=${TIMEZONE}
     volumes:
-      - ${STORAGE}/configs/lidarr:/config
-      - ${STORAGE}/media:/media
+      - type: bind 
+        source: ${STORAGE}/configs/lidarr
+        target: /config
+      - type: bind 
+        source: ${STORAGE}/media
+        target: /media
     ports:
       - 8686:8686
     restart: unless-stopped
@@ -87,7 +107,9 @@ services:
       - 5055:5055
     user: "1000:1000"
     volumes:
-      - ${STORAGE}/configs/jellyseerr:/app/config
+      - type: bind 
+        source: ${STORAGE}/configs/jellyseerr
+        target: /app/config
     restart: unless-stopped
 
   ## Recyclarr
@@ -101,7 +123,8 @@ services:
   #     args:
   #       - TARGETARCH=amd64
   #   volumes:
-  #     - ${STORAGE}/configs/recyclarr:/config
+  #     - type: bind 
+  #       source: ${STORAGE}/configs/recyclarr:/config
   #   environment:
   #     CRON_SCHEDULE: 0 0 * * *
   #     TZ: ${TIMEZONE}
@@ -115,8 +138,12 @@ services:
       - PGID=1000
       - TZ=${TIMEZONE}
     volumes:
-      - ${STORAGE}/configs/bazarr:/config
-      - ${STORAGE}/media:/media
+      - type: bind 
+        source: ${STORAGE}/configs/bazarr
+        target: /config
+      - type: bind 
+        source: ${STORAGE}/media
+        target: /media
     ports:
       - 6767:6767
     restart: unless-stopped
@@ -134,8 +161,12 @@ services:
   #     - APP_URL=https://example.domain.com
   #     - TZ=${TIMEZONE}
   #   volumes:
-  #     - ${STORAGE}/configs/wizarr:/data/database
-  #     - ${STORAGE}/configs/wizarr/wizard:/data/wizard_steps
+  #     - type: bind 
+  #       source: ${STORAGE}/configs/wizarr
+  #       target: /data/database
+  #     - type: bind 
+  #       source: ${STORAGE}/configs/wizarr/wizard
+  #       target: /data/wizard_steps
 
   ## qbittorrent
   qbittorrent:
@@ -148,8 +179,12 @@ services:
       - WEBUI_PORT=8080
       - TORRENTING_PORT=6881
     volumes:
-      - /path/to/qbittorrent/appdata:/config
-      - /path/to/downloads:/downloads #optional
+      - type: bind
+        source: ${STORAGE}/configs
+        target: /config
+      - type: bind
+        source: ${STORAGE}/
+        target: /downloads #optional
     ports:
       - 8080:8080 # qBittorrent
       - 6881:6881

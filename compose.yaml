@@ -10,7 +10,9 @@
 ##   - 8090 Matrix identity server
 ##
 ## Volumes
-##   /Host/Location:/Container/Location
+##   - type: bind
+##     source: /Host/Location
+##     target: /Container/Location
 
 include:
   - management.yaml
