@@ -183,7 +183,7 @@ services:
         source: ${STORAGE}/configs
         target: /config
       - type: bind
-        source: ${STORAGE}/
+        source: ${STORAGE}/media/downloads
         target: /downloads #optional
     ports:
       - 8080:8080 # qBittorrent
