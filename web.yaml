@@ -3,7 +3,7 @@ services:
   ## https://github.com/matrix-construct/tuwunel
   ## Not Yet, we might be doing our own implementation
 
-  ## Firefox Sync
+  ## Firefox Sync-
 
   ## Bitwarden
   vaultwarden:

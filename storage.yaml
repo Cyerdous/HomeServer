@@ -21,79 +21,83 @@ services:
     restart: unless-stopped
 
   ## RomM
-  romm:
-    image: rommapp/romm:latest
-    container_name: romm
-    restart: unless-stopped
-    environment:
-      - DB_HOST=romm-db
-      - DB_NAME=romm
-      - DB_USER=romm-user
-      - DB_PASSWD=dbpassword
-      - ROMM_AUTH_SECRET_KEY=03a054b6ca27e0107c5eed552ea66becd9f3a2a8a91e7595cd462a593f9ecd09 # Generate a key with `openssl rand -hex 32`
-      - IGDB_CLIENT_ID= # Generate an ID and SECRET in IGDB
-      - IGDB_CLIENT_SECRET= # https://api-docs.igdb.com/#account-creation
-      - MOBYGAMES_API_KEY= # https://www.mobygames.com/info/api/
-      - STEAMGRIDDB_API_KEY= # https://github.com/rommapp/romm/wiki/Generate-API-Keys#steamgriddb
-    volumes:
-      - type: bind 
-        source: ${STORAGE}/configs/romm/resources
-        target: /romm/resources
-      - type: bind 
-        source: ${STORAGE}/configs/romm/romm_redis_data
-        target: /romm/redis-data
-      - type: bind 
-        source: ${STORAGE}/configs/romm/assets
-        target: /romm/assets
-      - type: bind 
-        source: ${STORAGE}/configs/romm/config
-        target: /romm/config
-      - type: bind 
-        source: ${STORAGE}/roms
-        target: /romm/library # replace with your romms library path
-    ports:
-      - 30061:8080
-    depends_on:
-      romm-db:
-        condition: service_healthy
-        restart: true
-  romm-db:
-    image: mariadb:latest
-    container_name: romm-db
-    restart: unless-stopped
-    environment:
-      - MARIADB_ROOT_PASSWORD=supersecret
-      - MARIADB_DATABASE=romm
-      - MARIADB_USER=romm-user
-      - MARIADB_PASSWORD=dbpassword
-    volumes:
-      - type: bind 
-        source: ${STORAGE}/configs/romm/mysql_data
-        target: /var/lib/mysql
-    healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-      start_period: 30s
-      start_interval: 10s
-      interval: 10s
-      timeout: 5s
-      retries: 5
+  # romm:
+  #   image: rommapp/romm:latest
+  #   container_name: romm
+  #   restart: unless-stopped
+  #   environment:
+  #     - DB_HOST=romm-db
+  #     - DB_NAME=romm
+  #     - DB_USER=romm-user
+  #     - DB_PASSWD=dbpassword
+  #     - ROMM_AUTH_SECRET_KEY=de393322e16f89a42ddb0645b23f7836ffb18844f12f35147ca803c6d96958f1 # Generate a key with `openssl rand -hex 32`
+  #     - IGDB_CLIENT_ID= # Generate an ID and SECRET in IGDB
+  #     - IGDB_CLIENT_SECRET= # https://api-docs.igdb.com/#account-creation
+  #     - MOBYGAMES_API_KEY= # https://www.mobygames.com/info/api/
+  #     - STEAMGRIDDB_API_KEY= # https://github.com/rommapp/romm/wiki/Generate-API-Keys#steamgriddb
+  #   volumes:
+  #     - type: bind 
+  #       source: ${STORAGE}/configs/romm/resources
+  #       target: /romm/resources
+  #     - type: bind 
+  #       source: ${STORAGE}/configs/romm/romm_redis_data
+  #       target: /romm/redis-data
+  #     - type: bind 
+  #       source: ${STORAGE}/configs/romm/assets
+  #       target: /romm/assets
+  #     - type: bind 
+  #       source: ${STORAGE}/configs/romm/config
+  #       target: /romm/config
+  #     - type: bind 
+  #       source: ${STORAGE}/roms
+  #       target: /romm/library # replace with your romms library path
+  #   ports:
+  #     - 30061:8080
+  #   depends_on:
+  #     romm-db:
+  #       condition: service_healthy
+  #       restart: true
+  # romm-db:
+  #   image: mariadb:latest
+  #   container_name: romm-db
+  #   restart: unless-stopped
+  #   environment:
+  #     - MARIADB_ROOT_PASSWORD=supersecret
+  #     - MARIADB_DATABASE=romm
+  #     - MARIADB_USER=romm-user
+  #     - MARIADB_PASSWORD=dbpassword
+  #   volumes:
+  #     - type: bind 
+  #       source: ${STORAGE}/configs/romm/mysql_data
+  #       target: /var/lib/mysql
+  #   healthcheck:
+  #     test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+  #     start_period: 30s
+  #     start_interval: 10s
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
 
   ## GitLab
   ## https://docs.gitlab.com/install/docker/installation/
   gitlab:
     image: gitlab/gitlab-ce:latest
     restart: always
-    hostname: 'gitlab.example.com'
+    hostname: 'gitlab.cyer.dev'
     environment:
       GITLAB_OMNIBUS_CONFIG: |
-        external_url 'http://gitlab.example.com:8929'
+        external_url 'https://gitlab.cyer.dev:8929'
         gitlab_rails['gitlab_shell_ssh_port'] = 2424
+        consul['https_port'] = 44370
     ports:
       - '8929:8929'
       - '44370:443' # gitlab https
       - '2424:22'
     volumes:
-      - 'type: bind source: ${STORAGE}/configs/gitlab:/etc/gitlab'
-      - '$GITLAB_HOME/logs:/var/log/gitlab'
-      - '$GITLAB_HOME/data:/var/opt/gitlab'
+      - ${STORAGE}/configs/gitlab:/etc/gitlab'
+      - ${STORAGE}/logs/gitlab:/var/log/gitlab'
+      - ${STORAGE}/data/gitlab:/var/opt/gitlab'
     shm_size: '256m'
+
+  ## nginx - reqirement for GitLab
+  nginx:

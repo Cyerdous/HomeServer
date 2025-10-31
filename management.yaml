@@ -1,22 +1,5 @@
 services:
 
-  ## Docker Container Management
-  ## https://wiki.serversatho.me/
-  portainer:
-    image: portainer/portainer-ce:latest
-    container_name: portainer
-    restart: unless-stopped
-    ports:
-      - 8085:8000 # Portainer http
-      - 44385:9443 # Portainer https
-    volumes:
-      - type: bind
-        source: /var/run/docker.sock
-        target: /var/run/docker.sock
-      - type: bind 
-        source: ${STORAGE}/configs/portainer
-        target: /data
-
   ## Docker Log Viewer
   dozzle:
     container_name: dozzle
